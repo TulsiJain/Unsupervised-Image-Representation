@@ -33,15 +33,19 @@ class DeepInfoMaxLoss(nn.Module):
         y_M = torch.cat((M, y_exp), dim=1)
         y_M_prime = torch.cat((M_prime, y_exp), dim=1)
 
-        # print(Ej.shape)
-        Ej = self.local_d(y_M)
-        Em = torch.log(torch.exp(self.local_d(y_M_prime)).sum()).mean()
-        LOCAL = - (Ej - Em).mean() * self.beta
+        # Local
+        a = self.local_d(y_M);
+        Ej = -F.softplus(-a).mean()
+        b = self.local_d(y_M_prime);
+        Em = F.softplus(b).mean()
+        LOCAL = (Em - Ej) * self.beta
 
-        Ej = (self.global_d(y, M))
-        Em = torch.log(torch.exp(self.global_d(y, M_prime)).sum()).mean()
-        GLOBAL = - (Ej - Em).mean() * self.alpha
+        # Global
+        Ej = -F.softplus(-self.global_d(y, M)).mean()
+        Em = F.softplus(self.global_d(y, M_prime)).mean()
+        GLOBAL = (Em - Ej) * self.alpha
 
+        # Prior Matching
         prior = torch.rand_like(y)
         term_a = torch.log(self.prior_d(prior)).mean()
         term_b = torch.log(1.0 - self.prior_d(y)).mean()
@@ -52,7 +56,7 @@ class DeepInfoMaxLoss(nn.Module):
 
 if __name__ == '__main__':
 
-    torch.manual_seed(1);
+    torch.manual_seed(1)
 
     parser = argparse.ArgumentParser(description='DeepInfomax pytorch')
     parser.add_argument('--batch_size', default=64, type=int, help='batch_size')
@@ -84,7 +88,7 @@ if __name__ == '__main__':
         encoder.load_state_dict(torch.load(str(enc_file)))
         loss_fn.load_state_dict(torch.load(str(loss_file)))
 
-    for epoch in range(epoch_restart + 1, 201):
+    for epoch in range(epoch_restart + 1, 501):
         batch = tqdm(cifar_10_train_l, total=len(cifar_10_train_dt) // batch_size)
         train_loss = []
         for x, target in batch:
@@ -120,11 +124,3 @@ if __name__ == '__main__':
                 loss_dict = {}
                 loss_dict[str(epoch)] = stats.mean(train_loss[-20:])
                 pickle.dump(loss_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-            
-
-        
-
-
-
-
-
