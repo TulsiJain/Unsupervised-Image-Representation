@@ -33,16 +33,19 @@ class DeepInfoMaxLoss(nn.Module):
         y_M = torch.cat((M, y_exp), dim=1)
         y_M_prime = torch.cat((M_prime, y_exp), dim=1)
 
+        # Local
         a = self.local_d(y_M);
         Ej = -F.softplus(-a).mean()
         b = self.local_d(y_M_prime);
         Em = F.softplus(b).mean()
         LOCAL = (Em - Ej) * self.beta
 
+        # Global
         Ej = -F.softplus(-self.global_d(y, M)).mean()
         Em = F.softplus(self.global_d(y, M_prime)).mean()
         GLOBAL = (Em - Ej) * self.alpha
 
+        # Prior Matching
         prior = torch.rand_like(y)
         term_a = torch.log(self.prior_d(prior)).mean()
         term_b = torch.log(1.0 - self.prior_d(y)).mean()
@@ -53,7 +56,7 @@ class DeepInfoMaxLoss(nn.Module):
 
 if __name__ == '__main__':
 
-    torch.manual_seed(1);
+    torch.manual_seed(1)
 
     parser = argparse.ArgumentParser(description='DeepInfomax pytorch')
     parser.add_argument('--batch_size', default=64, type=int, help='batch_size')
@@ -76,7 +79,7 @@ if __name__ == '__main__':
     encoder_optim = Adam(encoder.parameters(), lr=1e-4)
     loss_optim = Adam(loss_fn.parameters(), lr=1e-4)
 
-    epoch_restart = 320
+    epoch_restart = 0
     root = Path(r'models')
 
     if epoch_restart > 0 and root is not None:
