@@ -46,7 +46,7 @@ class DeepInfoMaxLoss(nn.Module):
         GLOBAL = (Em - Ej) * self.alpha
 
         # Prior Matching
-        prior = torch.rand_like(y)
+        prior = torch.randn_like(y)
         term_a = torch.log(self.prior_d(prior)).mean()
         term_b = torch.log(1.0 - self.prior_d(y)).mean()
         PRIOR = - (term_a + term_b) * self.gamma
