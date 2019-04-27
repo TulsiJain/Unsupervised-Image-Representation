@@ -33,21 +33,21 @@ class DeepInfoMaxLoss(nn.Module):
         y_M = torch.cat((M, y_exp), dim=1)
         y_M_prime = torch.cat((M_prime, y_exp), dim=1)
 
-        Ep = self.local_d(y_M)
-        # print(Ep.shape)
-        Ep1 = torch.log(self.local_d(y_M_prime).exp().sum()).mean()
-        LOCAL = -(Ep - Ep1).mean() * self.beta
+        # print(Ej.shape)
+        Ej = self.local_d(y_M)
+        Em = torch.log(torch.exp(self.local_d(y_M_prime)).sum()).mean()
+        LOCAL = (Ej - Em).mean() * self.beta
 
-        # Ej = self.global_d(y, M).mean()
-        # Em = self.global_d(y, M_prime).mean()
-        # GLOBAL = (Em - Ej) * self.alpha
+        Ej = (self.global_d(y, M))
+        Em = torch.log(torch.exp(self.global_d(y, M_prime)).sum()).mean()
+        GLOBAL = (Ej - Em).mean() * self.alpha
 
         prior = torch.rand_like(y)
         term_a = torch.log(self.prior_d(prior)).mean()
         term_b = torch.log(1.0 - self.prior_d(y)).mean()
         PRIOR = - (term_a + term_b) * self.gamma
 
-        return LOCAL + PRIOR
+        return LOCAL + GLOBAL + PRIOR
 
 
 if __name__ == '__main__':
