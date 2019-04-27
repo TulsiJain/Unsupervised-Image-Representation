@@ -7,3 +7,6 @@ baseline_infonce/data/
 baseline_dv/models/
 baseline_jsn/models/
 baseline_infonce/models/
+
+*.iml
+*.xml
