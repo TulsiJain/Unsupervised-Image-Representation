@@ -10,3 +10,4 @@ baseline_infonce/models/
 
 *.iml
 *.xml
+*.pyc
