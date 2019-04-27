@@ -75,7 +75,7 @@ if __name__ == '__main__':
     encoder_optim = Adam(encoder.parameters(), lr=1e-4)
     loss_optim = Adam(loss_fn.parameters(), lr=1e-4)
 
-    epoch_restart = 20
+    epoch_restart = 0
     root = Path(r'models')
 
     if epoch_restart > 0 and root is not None:
