@@ -37,7 +37,6 @@ class Classification(nn.Module):
         return F.log_softmax(x, dim=1)
 
 
-
 class GlobalDiscriminator(nn.Module):
     def __init__(self):
         super().__init__()

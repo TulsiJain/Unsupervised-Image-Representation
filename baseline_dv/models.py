@@ -67,7 +67,9 @@ class LocalDiscriminator(nn.Module):
     def forward(self, x):
         h = F.relu(self.c0(x))
         h = F.relu(self.c1(h))
-        return self.c2(h)
+        h = self.c2(h)
+        # print(h.shape)
+        return h
 
 
 class PriorDiscriminator(nn.Module):

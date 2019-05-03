@@ -9,8 +9,8 @@ import random
 import torch.nn as nn
 from torch.optim import Adam
 import statistics as stats
-from customdataset import MyCustomDataset
 from torchvision.transforms import ToTensor, ToPILImage
+from classification import Classification
 # from matplotlib import pyplot as plt
 # from torchvision.utils import save_image
 # import numpy as np
@@ -27,40 +27,23 @@ cifar_10_train_dt = CIFAR10(r'data', download=False, transform=ToTensor())
 cifar_10_train_l = DataLoader(cifar_10_train_dt, batch_size=batch_size, shuffle=False,
                               pin_memory=torch.cuda.is_available())
 
-
-# cifar_10_train_dt = CIFAR10(r'data1', train=False, download=True, transform=ToTensor())
-# cifar_10_train_l = DataLoader(cifar_10_train_dt, batch_size=batch_size,  shuffle=False)
-
-
-class Classification(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.l1 = nn.Linear(64, 200)
-        self.l2 = nn.Linear(200, 10)
-
-    def forward(self, x):
-        x = F.relu(self.l1(x))
-        x = self.l2(x)        
-        return F.log_softmax(x, dim=1)
-
 encoder = models.Encoder()
 classification = Classification().to(device)
 
-root = Path(r'baseline/models')
-model_path = root / Path(r'encoder320.wgt')
+root = Path(r'modified/models')
+model_path = root / Path(r'encoder70.wgt')
 encoder.load_state_dict(torch.load(str(model_path)))
 encoder.to(device)
 classification_optim = Adam(classification.parameters(), lr=1e-4)
 
-
-epoch_restart = 100
-root_classification_model = Path(r'classification_model')
+epoch_restart = 0
+root_classification_model = Path(r'classification_model_baseline_modified')
 
 if epoch_restart > 0 and root is not None:
     classification_loss_file = root_classification_model / Path('classification_loss' + str(epoch_restart) + '.wgt')
     classification.load_state_dict(torch.load(str(classification_loss_file)))
 
-for epoch in range(epoch_restart + 1, 201):
+for epoch in range(epoch_restart + 1, 101):
     batch = tqdm(cifar_10_train_l, total=len(cifar_10_train_dt) // batch_size)
     train_loss = []
     correct = 0
@@ -80,7 +63,7 @@ for epoch in range(epoch_restart + 1, 201):
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
         if epoch % 5 == 0:
-            root = Path(r'classification_model')
+            root = Path(r'classification_model_baseline_modified')
             classification_loss_file = root / Path('classification_loss' + str(epoch) + '.wgt')
             classification_loss_file.parent.mkdir(parents=True, exist_ok=True)
             torch.save(classification.state_dict(), str(classification_loss_file))

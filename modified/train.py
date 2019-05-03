@@ -13,6 +13,7 @@ import argparse
 import numpy as np
 import math
 from customdataset import MyCustomDataset
+import pickle
 
 class DeepInfoMaxLoss(nn.Module):
     def __init__(self, alpha=0.5, beta=1.0, gamma=0.1):
@@ -69,8 +70,8 @@ if __name__ == '__main__':
     cifar_10_train_l = DataLoader(cifar_10_train_dt, batch_size=batch_size, shuffle=True, drop_last=True,
                                   pin_memory=torch.cuda.is_available())
 
+    encoder = Encoder().to(device)
     loss_fn = DeepInfoMaxLoss(0, 1, 0.1).to(device)
-    loss_fn = DeepInfoMaxLoss().to(device)
     classification = Classification().to(device)
     encoder_optim = Adam(encoder.parameters(), lr=1e-4)
     loss_optim = Adam(loss_fn.parameters(), lr=1e-4)
@@ -99,10 +100,9 @@ if __name__ == '__main__':
             y, M = encoder(x)
             predicted_value = classification(y)
             criterion = nn.CrossEntropyLoss()
-            loss_ss = criterion(predicted_value, rot)
+            loss_classification = criterion(predicted_value, rot)
             M_prime = torch.cat((M[1:], M[0].unsqueeze(0)), dim=0)
             loss_mutual_information = loss_fn(y, M, M_prime)
-            loss_classification = loss_ss
             loss_total = loss_mutual_information + loss_classification
             train_loss.append(loss_total.item())
             batch.set_description(str(epoch) + ' Loss: ' + str(stats.mean(train_loss[-1:])))
@@ -120,3 +120,15 @@ if __name__ == '__main__':
             torch.save(encoder.state_dict(), str(enc_file))
             torch.save(loss_fn.state_dict(), str(loss_file))
             torch.save(classification.state_dict(), str(classification_loss_file))
+
+        if epoch > 1: 
+            with open('loss.pickle', 'rb') as handle:
+                loss_dict = pickle.load(handle)
+                loss_dict[str(epoch)] = stats.mean(train_loss[-20:])
+            with open('loss.pickle', 'wb') as handle:
+                pickle.dump(loss_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            with open('loss.pickle', 'wb') as handle:
+                loss_dict = {}
+                loss_dict[str(epoch)] = stats.mean(train_loss[-20:])
+                pickle.dump(loss_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)

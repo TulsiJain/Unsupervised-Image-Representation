@@ -9,7 +9,8 @@ import random
 import torch.nn as nn
 from torch.optim import Adam
 import statistics as stats
-from customdataset import MyCustomDataset
+from classification import Classification
+# from customdataset import MyCustomDataset
 from torchvision.transforms import ToTensor, ToPILImage
 # from matplotlib import pyplot as plt
 # from torchvision.utils import save_image
@@ -27,26 +28,15 @@ cifar_10_train_dt = CIFAR10(r'data', train=False, download=False, transform=ToTe
 cifar_10_train_l = DataLoader(cifar_10_train_dt, batch_size=batch_size, shuffle=False,
                               pin_memory=torch.cuda.is_available())
 
-class Classification(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.l1 = nn.Linear(64, 200)
-        self.l2 = nn.Linear(200, 10)
-
-    def forward(self, x):
-        x = F.relu(self.l1(x))
-        x = self.l2(x)        
-        return F.log_softmax(x, dim=1)
-
 encoder = models.Encoder()
 classification = Classification()
 
-root = Path(r'baseline_jsn/models')
-encoder_path = root / Path(r'encoder320.wgt')
+root = Path(r'modified/models')
+encoder_path = root / Path(r'encoder40.wgt')
 encoder.load_state_dict(torch.load(str(encoder_path)))
 encoder.to(device)
-root_classification = Path(r'classification_model')
-classification_model_path = root_classification / Path(r'classification_loss175.wgt')
+root_classification = Path(r'classification_model_baseline_modified')
+classification_model_path = root_classification / Path(r'classification_loss65.wgt')
 classification.load_state_dict(torch.load(str(classification_model_path)))
 classification.to(device)
 

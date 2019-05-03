@@ -1,9 +1,20 @@
 data/
 models/
-classification_model/
-baseline_dv/data/
+classification_model_baseline_jsn/
 baseline_jsn/data/
-baseline_infonce/data/
-baseline_dv/models/
 baseline_jsn/models/
+
+
+classification_model_baseline_dv/
+baseline_dv/data/
+baseline_dv/models/
+
+classification_model_baseline_infonce/
+baseline_infonce/data/
 baseline_infonce/models/
+
+classification_model_baseline_modified/
+modified/data/
+modified/models/
+
+/not required

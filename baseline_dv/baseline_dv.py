@@ -34,21 +34,28 @@ class DeepInfoMaxLoss(nn.Module):
         y_M_prime = torch.cat((M_prime, y_exp), dim=1)
 
         a = self.local_d(y_M)
+        # print(a.shape)
         Ej = a.mean()
+        # print(Ej.shape)
+        
         b = torch.exp(self.local_d(y_M_prime))
-        Em = b.mean()
-        LOCAL = (torch.log(Em) - Ej) * self.beta
+        # print(b.shape)
+        Em = torch.log(b.mean())
+        # print(Em.shape)
+        LOCAL = (Em - Ej) * self.beta
 
-        Ej = (self.global_d(y, M)).mean()
-        Em = torch.exp(self.global_d(y, M_prime)).mean()
-        GLOBAL = (torch.log(Em) - Ej) * self.alpha
+        # # Ej = (self.global_d(y, M)).mean()
+        # # Em = torch.exp(self.global_d(y, M_prime)).mean()
+        # # GLOBAL = (torch.log(Em) - Ej) * self.alpha
 
         prior = torch.rand_like(y)
         term_a = torch.log(self.prior_d(prior)).mean()
         term_b = torch.log(1.0 - self.prior_d(y)).mean()
         PRIOR = - (term_a + term_b) * self.gamma
 
-        return LOCAL + GLOBAL + PRIOR
+        return LOCAL  + PRIOR
+
+        # return LOCAL
 
 
 if __name__ == '__main__':
@@ -76,7 +83,7 @@ if __name__ == '__main__':
     encoder_optim = Adam(encoder.parameters(), lr=1e-4)
     loss_optim = Adam(loss_fn.parameters(), lr=1e-4)
 
-    epoch_restart = 0
+    epoch_restart = 40
     root = Path(r'models')
 
     if epoch_restart > 0 and root is not None:
