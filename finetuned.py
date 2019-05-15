@@ -31,12 +31,12 @@ encoder = models.Encoder()
 classification = Classification().to(device)
 
 root = Path(r'modified/models')
-model_path = root / Path(r'encoder70.wgt')
+model_path = root / Path(r'encoder500.wgt')
 encoder.load_state_dict(torch.load(str(model_path)))
 encoder.to(device)
 classification_optim = Adam(classification.parameters(), lr=1e-4)
 
-epoch_restart = 0
+epoch_restart = 50 
 root_classification_model = Path(r'classification_model_baseline_modified')
 
 if epoch_restart > 0 and root is not None:

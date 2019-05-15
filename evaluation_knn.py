@@ -44,8 +44,8 @@ cifar_10_train_dt = CIFAR10(r'data', train=True, download=False, transform=ToTen
 cifar_10_train_l = DataLoader(cifar_10_train_dt, batch_size=batch_size, shuffle=False,
                               pin_memory=torch.cuda.is_available())
 encoder = models.Encoder()
-root = Path(r'baseline_jsn/models')
-encoder_path = root / Path(r'encoder320.wgt')
+root = Path(r'modified/models')
+encoder_path = root / Path(r'encoder500.wgt')
 encoder.load_state_dict(torch.load(str(encoder_path)))
 encoder.to(device)
 encoder.eval()

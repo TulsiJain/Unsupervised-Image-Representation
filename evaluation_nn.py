@@ -32,11 +32,11 @@ encoder = models.Encoder()
 classification = Classification()
 
 root = Path(r'modified/models')
-encoder_path = root / Path(r'encoder40.wgt')
+encoder_path = root / Path(r'encoder500.wgt')
 encoder.load_state_dict(torch.load(str(encoder_path)))
 encoder.to(device)
 root_classification = Path(r'classification_model_baseline_modified')
-classification_model_path = root_classification / Path(r'classification_loss65.wgt')
+classification_model_path = root_classification / Path(r'classification_loss50.wgt')
 classification.load_state_dict(torch.load(str(classification_model_path)))
 classification.to(device)
 
@@ -51,7 +51,7 @@ for images, target in batch:
     pred = predicted_value.data.max(1, keepdim=True)[1] 
     correct += pred.eq(target.data.view_as(pred)).cpu().sum()
         
-print('\n Training Accuracy: {}/{} ({:.4f}%)\n'.format(
+print('\n Testing Accuracy: {}/{} ({:.4f}%)\n'.format(
     correct, len(cifar_10_train_dt),
     100. * correct / len(cifar_10_train_dt)))
 

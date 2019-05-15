@@ -41,8 +41,6 @@ class MyCustomDataset(CIFAR10):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        a = np.random.randint(4)
-
-        rot = a*90
+        rot = (index%4)*90
         rotate_img(img, rot)
-        return img, target, a
+        return img, target, index%4
